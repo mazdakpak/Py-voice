@@ -17,6 +17,8 @@ import pyttsx3
 import subprocess
 import platform
 import os
+import random
+
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -40,7 +42,7 @@ def get_audio():
     r = sr.Recognizer()
     with  sr.Microphone() as source:
         r.adjust_for_ambient_noise(source , duration=1)
-        print("say ...")
+        print("Listening ....")
         audio = r.listen(source)
         said = ""
         try:
@@ -48,7 +50,7 @@ def get_audio():
             
         except :
            print("Error :")
-    return said
+    return said.lower()
 
 
 
@@ -104,7 +106,7 @@ def get_event(day , service):
                 start_time  = start_time + "AM"
 
             else:
-                start_time =  str(int(start_time.split(":")[0])-12)
+                start_time =  str(int(start_time.split(":")[0])-12) + start_time.split(":")[1]
                 start_time = start_time + "PM"
 
                 speak(event["summary"]+" at "+ start_time)
@@ -182,31 +184,38 @@ def note(text):
          subprocess.Popen(["gedit" ,"notes/"+file_name])
     elif os_name == "Windows":
         subprocess.Popen(["notepad.exe" ,"notes/"+file_name])
-
-speak("Hi , What can i do for you ?")
 serv = authenticate_google()
-text = get_audio().lower()
+WAKE = "hey"
+while True:
+    
+    text = get_audio()
+    if text == WAKE:
 
-print(f"You said : {text}")
-
-#the sentences for runing clender API
-CALENDAR_STR = ["what should i do" , "what do i have" , "do i have plans" , "do i have events" , "am i busy" , "whats me events" ,"read my events"]
-
-for phrase in CALENDAR_STR:
-    if phrase in text:
-        data = get_date(text)
-        if data:
-            get_event(data,serv)
-        else:
-            speak("sorry . please try again")
-
-
+        speak("Hi , What can i do for you ?")
+        text = get_audio()
         
-NOTE_STR = ["make a note","create a note" ,"create a new note" ,"make a new note","type this" ,"type this note"]
 
-for phrase in NOTE_STR:
-    if phrase in text:
-        speak("What would like me to write down for you ?")
-        write_down = get_audio()
-        note(write_down)
-        speak("I've  made a note for that")
+
+        print(f"You said : {text}")
+
+        #the sentences for runing clender API
+        CALENDAR_STR = ["what should i do" , "what do i have" , "do i have plans" , "do i have events" , "am i busy" , "whats me events" ,"read my events"]
+
+        for phrase in CALENDAR_STR:
+            if phrase in text:
+                data = get_date(text)
+                if data:
+                    get_event(data,serv)
+                else:
+                    speak("sorry . please try again")
+
+
+                
+        NOTE_STR = ["make a note","create a note" ,"create a new note" ,"make a new note","type this" ,"type this note"]
+
+        for phrase in NOTE_STR:
+            if phrase in text:
+                speak("What would like me to write down for you ?")
+                write_down = get_audio()
+                note(write_down)
+                speak("I've  made a note for that")
