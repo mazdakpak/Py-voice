@@ -19,6 +19,7 @@ import platform
 import os
 import random
 import wikipedia
+import pyautogui
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -189,7 +190,7 @@ def note(text):
 
     date =  datetime.datetime.now()
     file_name = str(date).replace(":" ,"-")+"_note.txt"
-    with open("file_name" , "w") as f:
+    with open("notes/"+file_name , "w") as f:
         f.write(text)
     os_name = platform.system()
     #if os is mac
@@ -199,6 +200,14 @@ def note(text):
          subprocess.Popen(["gedit" ,"notes/"+file_name])
     elif os_name == "Windows":
         subprocess.Popen(["notepad.exe" ,"notes/"+file_name])
+
+def screenshot():
+    date =  datetime.datetime.now()
+    file_name = str(date).replace(":" ,"-")+"_screenshot.png"
+    screenshot = pyautogui.screenshot()
+    screenshot.save("photos/"+file_name)
+    speak("i got an screenshot !")
+    
 serv = authenticate_google()
 
 WAKE = "hey"
@@ -228,6 +237,7 @@ while True:
 
                 
         NOTE_STR = ["make a note","create a note" ,"create a new note" ,"make a new note","type this" ,"type this note"]
+        SCREENSHOT_STR = ["take a screenshot" , "can you take screenshot"]
 
         for phrase in NOTE_STR:
             if phrase in text:
@@ -235,6 +245,11 @@ while True:
                 write_down = get_audio()
                 note(write_down)
                 speak("I've  made a note for that")
+        
+        for phrase in SCREENSHOT_STR:
+            if phrase in text:
+                screenshot()
+        
         if "who is" in text :
             person = getPerson(text)
             wiki = wikipedia.summary(person , sentences=2)
@@ -244,5 +259,6 @@ while True:
             thing = getThing(text)
             wiki = wikipedia.summary(thing , sentences=2 )
             speak("Here is what I found , " + wiki)
+        
         
         

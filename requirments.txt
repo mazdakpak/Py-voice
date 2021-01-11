@@ -6,3 +6,4 @@ speech_recognition
 selenium
 beautifulsoup4
 wikipedia
+pyautogui
