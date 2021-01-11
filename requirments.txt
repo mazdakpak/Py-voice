@@ -3,3 +3,6 @@ playsound
 pyaudio 
 gTTs
 speech_recognition
+selenium
+beautifulsoup4
+wikipedia

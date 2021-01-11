@@ -18,7 +18,7 @@ import subprocess
 import platform
 import os
 import random
-
+import wikipedia
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -30,11 +30,12 @@ DAY_EXTENTIONS = ['rd' , 'th' ,'st' ,'nd']
 
 #a function to  speak a text
 def speak(text):
-    tts = gTTS(text=text ,lang="en")
-    file_name =  "voice.mp3"
-    tts.save(file_name)
-    playsound.playsound(file_name)
-    os.remove(file_name)
+   tts = gTTS(text=text ,lang="en")
+   file_name =  "voice.mp3"
+   tts.save(file_name)
+   playsound.playsound(file_name)
+   os.remove(file_name)
+
 
 
 # a function to Recognize speech to a text
@@ -170,8 +171,22 @@ def get_date(text):
         return datetime.date(month=month , day=day , year=year)
 def open_program(path):
     subprocess.call([path])
-    
+def getPerson(text):
+    wordList = text.split()
+    for i in range(0 , len(wordList)):
+        if i + 3 <= len(wordList) -1 and wordList[i].lower() == "who" and wordList[i + 1].lower() == "is":
+            return wordList[i  + 2] + ' '+wordList[i+3]
+
+
+def getThing(text):
+    wordList = text.split()
+    for i in range(0 , len(wordList)):
+        if i + 3 <= len(wordList) -1 and wordList[i].lower() == "what" and wordList[i + 1].lower() == "is":
+            return wordList[i  + 2] + ' '+wordList[i+3]
+
 def note(text):
+
+
     date =  datetime.datetime.now()
     file_name = str(date).replace(":" ,"-")+"_note.txt"
     with open("file_name" , "w") as f:
@@ -185,11 +200,12 @@ def note(text):
     elif os_name == "Windows":
         subprocess.Popen(["notepad.exe" ,"notes/"+file_name])
 serv = authenticate_google()
+
 WAKE = "hey"
 while True:
     
     text = get_audio()
-    if text == WAKE:
+    if WAKE in text:
 
         speak("Hi , What can i do for you ?")
         text = get_audio()
@@ -219,3 +235,14 @@ while True:
                 write_down = get_audio()
                 note(write_down)
                 speak("I've  made a note for that")
+        if "who is" in text :
+            person = getPerson(text)
+            wiki = wikipedia.summary(person , sentences=2)
+            speak("Here is what I found , " + wiki)
+
+        elif "what is" in text:
+            thing = getThing(text)
+            wiki = wikipedia.summary(thing , sentences=2 )
+            speak("Here is what I found , " + wiki)
+        
+        
