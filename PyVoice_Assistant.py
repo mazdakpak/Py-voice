@@ -14,7 +14,9 @@ import sounddevice
 import pyaudio
 import pytz
 import pyttsx3
-
+import subprocess
+import platform
+import os
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -71,6 +73,8 @@ def authenticate_google():
 
     service = build('calendar', 'v3', credentials=creds)
     return service
+
+
 def get_event(day , service):
     #event start date
     date = datetime.datetime.combine( day, datetime.datetime.min.time())
@@ -162,12 +166,26 @@ def get_date(text):
     #if the user just say the number of date
     if day != -1:
         return datetime.date(month=month , day=day , year=year)
+def open_program(path):
+    subprocess.call([path])
     
-
+def note(text):
+    date =  datetime.datetime.now()
+    file_name = str(date).replace(":" ,"-")+"_note.txt"
+    with open("file_name" , "w") as f:
+        f.write(text)
+    os_name = platform.system()
+    #if os is mac
+    if os_name == "Darwin":
+         subprocess.Popen(["textedit" ,"notes/"+file_name])
+    elif os_name == "Linux":
+         subprocess.Popen(["gedit" ,"notes/"+file_name])
+    elif os_name == "Windows":
+        subprocess.Popen(["notepad.exe" ,"notes/"+file_name])
 
 speak("Hi , What can i do for you ?")
 serv = authenticate_google()
-text = get_audio()
+text = get_audio().lower()
 
 print(f"You said : {text}")
 
@@ -175,9 +193,20 @@ print(f"You said : {text}")
 CALENDAR_STR = ["what should i do" , "what do i have" , "do i have plans" , "do i have events" , "am i busy" , "whats me events" ,"read my events"]
 
 for phrase in CALENDAR_STR:
-    if phrase in text.lower():
+    if phrase in text:
         data = get_date(text)
         if data:
             get_event(data,serv)
         else:
             speak("sorry . please try again")
+
+
+        
+NOTE_STR = ["make a note","create a note" ,"create a new note" ,"make a new note","type this" ,"type this note"]
+
+for phrase in NOTE_STR:
+    if phrase in text:
+        speak("What would like me to write down for you ?")
+        write_down = get_audio()
+        note(write_down)
+        speak("I've  made a note for that")
