@@ -185,6 +185,12 @@ def getThing(text):
         if i + 3 <= len(wordList) -1 and wordList[i].lower() == "what" and wordList[i + 1].lower() == "is":
             return wordList[i  + 2] + ' '+wordList[i+3]
 
+
+def time():
+    time = datetime.datetime.now()
+    speak("Its "+str(time.hour)+":"+str(time.minute))
+
+
 def note(text):
 
 
@@ -210,7 +216,7 @@ def screenshot():
     
 serv = authenticate_google()
 
-WAKE = "hey"
+WAKE = "hey mia"
 while True:
     
     text = get_audio()
@@ -249,7 +255,12 @@ while True:
         for phrase in SCREENSHOT_STR:
             if phrase in text:
                 screenshot()
-        
+        TIMR_STR = ["what time is it" , "what time is it now"]
+
+        for phrase in TIMR_STR:
+            if phrase in text:
+                time()
+
         if "who is" in text :
             person = getPerson(text)
             wiki = wikipedia.summary(person , sentences=2)
